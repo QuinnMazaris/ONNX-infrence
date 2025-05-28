@@ -6,6 +6,10 @@ OnnxModelApp/obj/
 OnnxModelApp/bin/Debug/net6.0/runtimes/ios/native/onnxruntime.xcframework/ios-arm64/onnxruntime.framework/onnxruntime
 OnnxModelApp/bin/Debug/net6.0/runtimes/ios/native/onnxruntime.xcframework/ios-arm64_x86_64-simulator/onnxruntime.framework/onnxruntime
 
+# ADD THESE ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓
+OnnxModelApp/bin/Debug/net8.0/runtimes/ios/native/onnxruntime.xcframework/ios-arm64/onnxruntime.framework/onnxruntime
+OnnxModelApp/bin/Debug/net8.0/runtimes/ios/native/onnxruntime.xcframework/ios-arm64_x86_64-simulator/onnxruntime.framework/onnxruntime
+
 # Ignore data and model files (if not needed in repo)
 *.onnx
 *.pkl
@@ -17,4 +21,4 @@ OnnxModelApp/bin/Debug/net6.0/runtimes/ios/native/onnxruntime.xcframework/ios-ar
 *.suo
 *.swp
 .DS_Store
-Thumbs.db 
+Thumbs.db
