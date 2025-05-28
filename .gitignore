@@ -1,0 +1,20 @@
+# Ignore build outputs and binaries
+OnnxModelApp/bin/
+OnnxModelApp/obj/
+
+# Ignore large ONNX runtime binaries
+OnnxModelApp/bin/Debug/net6.0/runtimes/ios/native/onnxruntime.xcframework/ios-arm64/onnxruntime.framework/onnxruntime
+OnnxModelApp/bin/Debug/net6.0/runtimes/ios/native/onnxruntime.xcframework/ios-arm64_x86_64-simulator/onnxruntime.framework/onnxruntime
+
+# Ignore data and model files (if not needed in repo)
+*.onnx
+*.pkl
+*.csv
+
+# Ignore VSCode and user-specific files
+.vscode/
+*.user
+*.suo
+*.swp
+.DS_Store
+Thumbs.db 
