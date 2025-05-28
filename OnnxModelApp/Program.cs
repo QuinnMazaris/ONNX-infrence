@@ -8,61 +8,52 @@ namespace OnnxModelApp
 {
     public class WeldPredictor : IDisposable
     {
-        private InferenceSession _session;
-        private string _modelPath;
-        private string _csvPath;
+        private readonly InferenceSession _session;
+        private readonly ModelConfig _config;
+        private readonly DataPreprocessor _preprocessor;
+        private readonly string _csvPath;
 
         public WeldPredictor()
         {
-            // Try multiple possible locations for the model file
-            string[] possibleModelPaths = {
-                "RandomForest_production.onnx",
-                "../RandomForest_production.onnx",
-                "../../RandomForest_production.onnx",
-                @"C:\Users\QuinnMazaris\Desktop\ONNX infrence\RandomForest_production.onnx"
-            };
+            // Load configuration
+            _config = ModelConfig.Load();
 
-            foreach (string path in possibleModelPaths)
-            {
-                if (File.Exists(path))
-                {
-                    _modelPath = path;
-                    break;
-                }
-            }
-
-            if (_modelPath == null)
+            // Find model file
+            _config.ModelSettings.ModelPath = _config.FindFile(_config.ModelSettings.ModelPath, _config.SearchPaths.ModelPaths);
+            if (_config.ModelSettings.ModelPath == null)
             {
                 throw new FileNotFoundException("Could not find RandomForest_production.onnx");
             }
 
-            // Try multiple possible locations for the EXACT preprocessed CSV file
-            string[] possibleCsvPaths = {
-                "exact_preprocessed_data.csv",
-                "../exact_preprocessed_data.csv", 
-                "../../exact_preprocessed_data.csv",
-                @"C:\Users\QuinnMazaris\Desktop\ONNX infrence\exact_preprocessed_data.csv"
-            };
-
-            foreach (string path in possibleCsvPaths)
+            // Find and preprocess data if needed
+            _config.ModelSettings.RawDataPath = _config.FindFile(_config.ModelSettings.RawDataPath, _config.SearchPaths.DataPaths);
+            if (_config.ModelSettings.RawDataPath == null)
             {
-                if (File.Exists(path))
-                {
-                    _csvPath = path;
-                    break;
-                }
+                throw new FileNotFoundException("Could not find training_data.csv");
             }
 
-            if (_csvPath == null)
+            // Find feature mapping file
+            _config.ModelSettings.FeatureMappingPath = _config.FindFile(_config.ModelSettings.FeatureMappingPath, _config.SearchPaths.FeatureMappingPaths);
+            if (_config.ModelSettings.FeatureMappingPath == null)
             {
-                throw new FileNotFoundException("Could not find exact_preprocessed_data.csv. Please run create_exact_preprocessing.py first.");
+                throw new FileNotFoundException("Could not find exact_training_features.json");
             }
 
-            Console.WriteLine($"Using model: {_modelPath}");
-            Console.WriteLine($"Using EXACT preprocessed CSV: {_csvPath}");
+            _preprocessor = new DataPreprocessor(_config);
+            
+            // Check if preprocessed data exists, if not, create it
+            if (!File.Exists(_config.ModelSettings.PreprocessedDataPath))
+            {
+                Console.WriteLine("Preprocessed data not found. Running preprocessing...");
+                _preprocessor.PreprocessData();
+            }
+
+            _csvPath = _config.ModelSettings.PreprocessedDataPath;
+            Console.WriteLine($"Using model: {_config.ModelSettings.ModelPath}");
+            Console.WriteLine($"Using preprocessed CSV: {_csvPath}");
 
             // Create ONNX Runtime session
-            _session = new InferenceSession(_modelPath);
+            _session = new InferenceSession(_config.ModelSettings.ModelPath);
 
             // Print model information
             PrintModelInfo();
@@ -96,7 +87,7 @@ namespace OnnxModelApp
         {
             try
             {
-                // Read the EXACT preprocessed CSV file
+                // Read the preprocessed CSV file
                 var lines = File.ReadAllLines(_csvPath);
                 
                 if (rowNumber < 0 || rowNumber >= lines.Length - 1) // -1 because first line is header
@@ -108,16 +99,11 @@ namespace OnnxModelApp
                 var dataLine = lines[rowNumber + 1];
                 var values = dataLine.Split(',');
 
-                // Convert to float array (all 23 features, exactly matching training)
-                var features = values.Select(v => float.Parse(v.Trim())).ToArray();
-
-                if (features.Length != 23)
-                {
-                    return $"Error: Expected 23 features, got {features.Length}";
-                }
+                // Convert to float array using preprocessor
+                var features = _preprocessor.ExtractFeatures(values);
 
                 // Create input tensor with exact shape expected by model
-                var inputTensor = new DenseTensor<float>(features, new[] { 1, 23 });
+                var inputTensor = new DenseTensor<float>(features, new[] { 1, features.Length });
                 var inputs = new List<NamedOnnxValue>
                 {
                     NamedOnnxValue.CreateFromTensor("float_input", inputTensor)
@@ -125,12 +111,63 @@ namespace OnnxModelApp
 
                 // Run inference
                 using var results = _session.Run(inputs);
-                var output = results.First().AsEnumerable<long>().First();
+                
+                // Debug: Print all outputs
+                Console.WriteLine($"Number of outputs: {results.Count()}");
+                foreach (var result in results)
+                {
+                    Console.WriteLine($"Output name: {result.Name}, Type: {result.ValueType}");
+                }
+
+                // Get the label output (should be the prediction)
+                var labelResult = results.FirstOrDefault(r => r.Name == "output_label");
+                if (labelResult == null)
+                {
+                    return $"Error: Could not find output_label in model results";
+                }
+                
+                Console.WriteLine($"Label result name: {labelResult.Name}");
+                
+                long prediction;
+                if (labelResult.ValueType == OnnxValueType.ONNX_TYPE_TENSOR)
+                {
+                    var tensor = labelResult.AsTensor<long>();
+                    prediction = tensor.First();
+                }
+                else
+                {
+                    return $"Error: output_label is not a tensor, type: {labelResult.ValueType}";
+                }
+
+                // Get probability output for confidence
+                var probResult = results.FirstOrDefault(r => r.Name == "output_probability");
+                float confidence = 0.5f; // Default confidence
+                
+                if (probResult != null && probResult.ValueType == OnnxValueType.ONNX_TYPE_SEQUENCE)
+                {
+                    try
+                    {
+                        // Try to extract probability - this might be a sequence of probabilities
+                        var probSequence = probResult.AsEnumerable<IEnumerable<float>>();
+                        if (probSequence != null)
+                        {
+                            var probArray = probSequence.First().ToArray();
+                            if (probArray.Length > 1)
+                            {
+                                confidence = probArray[1]; // Probability of class 1 (Bad)
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"Could not extract probability: {ex.Message}");
+                    }
+                }
 
                 // Convert output to readable format
-                string prediction = output == 0 ? "Good" : "Bad";
+                string predictionText = prediction == 1 ? "Bad" : "Good";
                 
-                return $"{{\"row\": {rowNumber}, \"prediction\": \"{prediction}\", \"raw_output\": {output}}}";
+                return $"{{\"row\": {rowNumber}, \"prediction\": \"{predictionText}\", \"confidence\": {confidence:F4}, \"label\": {prediction}}}";
             }
             catch (Exception ex)
             {

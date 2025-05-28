@@ -8,15 +8,25 @@
     ".NETCoreApp,Version=v8.0": {
       "OnnxModelApp/1.0.0": {
         "dependencies": {
-          "Microsoft.ML.OnnxRuntime": "1.22.0"
+          "CsvHelper": "30.0.1",
+          "Microsoft.ML.OnnxRuntime": "1.16.3",
+          "System.Text.Json": "8.0.2"
         },
         "runtime": {
           "OnnxModelApp.dll": {}
         }
       },
-      "Microsoft.ML.OnnxRuntime/1.22.0": {
+      "CsvHelper/30.0.1": {
+        "runtime": {
+          "lib/net6.0/CsvHelper.dll": {
+            "assemblyVersion": "30.0.0.0",
+            "fileVersion": "30.0.1.0"
+          }
+        }
+      },
+      "Microsoft.ML.OnnxRuntime/1.16.3": {
         "dependencies": {
-          "Microsoft.ML.OnnxRuntime.Managed": "1.22.0"
+          "Microsoft.ML.OnnxRuntime.Managed": "1.16.3"
         },
         "runtimeTargets": {
           "runtimes/android/native/onnxruntime.aar": {
@@ -24,7 +34,87 @@
             "assetType": "native",
             "fileVersion": "0.0.0.0"
           },
-          "runtimes/ios/native/onnxruntime.xcframework.zip": {
+          "runtimes/ios/native/onnxruntime.xcframework/Info.plist": {
+            "rid": "ios",
+            "assetType": "native",
+            "fileVersion": "0.0.0.0"
+          },
+          "runtimes/ios/native/onnxruntime.xcframework/ios-arm64/onnxruntime.framework/Headers/coreml_provider_factory.h": {
+            "rid": "ios",
+            "assetType": "native",
+            "fileVersion": "0.0.0.0"
+          },
+          "runtimes/ios/native/onnxruntime.xcframework/ios-arm64/onnxruntime.framework/Headers/cpu_provider_factory.h": {
+            "rid": "ios",
+            "assetType": "native",
+            "fileVersion": "0.0.0.0"
+          },
+          "runtimes/ios/native/onnxruntime.xcframework/ios-arm64/onnxruntime.framework/Headers/onnxruntime_c_api.h": {
+            "rid": "ios",
+            "assetType": "native",
+            "fileVersion": "0.0.0.0"
+          },
+          "runtimes/ios/native/onnxruntime.xcframework/ios-arm64/onnxruntime.framework/Headers/onnxruntime_cxx_api.h": {
+            "rid": "ios",
+            "assetType": "native",
+            "fileVersion": "0.0.0.0"
+          },
+          "runtimes/ios/native/onnxruntime.xcframework/ios-arm64/onnxruntime.framework/Headers/onnxruntime_cxx_inline.h": {
+            "rid": "ios",
+            "assetType": "native",
+            "fileVersion": "0.0.0.0"
+          },
+          "runtimes/ios/native/onnxruntime.xcframework/ios-arm64/onnxruntime.framework/Headers/onnxruntime_float16.h": {
+            "rid": "ios",
+            "assetType": "native",
+            "fileVersion": "0.0.0.0"
+          },
+          "runtimes/ios/native/onnxruntime.xcframework/ios-arm64/onnxruntime.framework/Info.plist": {
+            "rid": "ios",
+            "assetType": "native",
+            "fileVersion": "0.0.0.0"
+          },
+          "runtimes/ios/native/onnxruntime.xcframework/ios-arm64/onnxruntime.framework/onnxruntime": {
+            "rid": "ios",
+            "assetType": "native",
+            "fileVersion": "0.0.0.0"
+          },
+          "runtimes/ios/native/onnxruntime.xcframework/ios-arm64_x86_64-simulator/onnxruntime.framework/Headers/coreml_provider_factory.h": {
+            "rid": "ios",
+            "assetType": "native",
+            "fileVersion": "0.0.0.0"
+          },
+          "runtimes/ios/native/onnxruntime.xcframework/ios-arm64_x86_64-simulator/onnxruntime.framework/Headers/cpu_provider_factory.h": {
+            "rid": "ios",
+            "assetType": "native",
+            "fileVersion": "0.0.0.0"
+          },
+          "runtimes/ios/native/onnxruntime.xcframework/ios-arm64_x86_64-simulator/onnxruntime.framework/Headers/onnxruntime_c_api.h": {
+            "rid": "ios",
+            "assetType": "native",
+            "fileVersion": "0.0.0.0"
+          },
+          "runtimes/ios/native/onnxruntime.xcframework/ios-arm64_x86_64-simulator/onnxruntime.framework/Headers/onnxruntime_cxx_api.h": {
+            "rid": "ios",
+            "assetType": "native",
+            "fileVersion": "0.0.0.0"
+          },
+          "runtimes/ios/native/onnxruntime.xcframework/ios-arm64_x86_64-simulator/onnxruntime.framework/Headers/onnxruntime_cxx_inline.h": {
+            "rid": "ios",
+            "assetType": "native",
+            "fileVersion": "0.0.0.0"
+          },
+          "runtimes/ios/native/onnxruntime.xcframework/ios-arm64_x86_64-simulator/onnxruntime.framework/Headers/onnxruntime_float16.h": {
+            "rid": "ios",
+            "assetType": "native",
+            "fileVersion": "0.0.0.0"
+          },
+          "runtimes/ios/native/onnxruntime.xcframework/ios-arm64_x86_64-simulator/onnxruntime.framework/Info.plist": {
+            "rid": "ios",
+            "assetType": "native",
+            "fileVersion": "0.0.0.0"
+          },
+          "runtimes/ios/native/onnxruntime.xcframework/ios-arm64_x86_64-simulator/onnxruntime.framework/onnxruntime": {
             "rid": "ios",
             "assetType": "native",
             "fileVersion": "0.0.0.0"
@@ -34,17 +124,7 @@
             "assetType": "native",
             "fileVersion": "0.0.0.0"
           },
-          "runtimes/linux-arm64/native/libonnxruntime_providers_shared.so": {
-            "rid": "linux-arm64",
-            "assetType": "native",
-            "fileVersion": "0.0.0.0"
-          },
           "runtimes/linux-x64/native/libonnxruntime.so": {
-            "rid": "linux-x64",
-            "assetType": "native",
-            "fileVersion": "0.0.0.0"
-          },
-          "runtimes/linux-x64/native/libonnxruntime_providers_shared.so": {
             "rid": "linux-x64",
             "assetType": "native",
             "fileVersion": "0.0.0.0"
@@ -59,10 +139,30 @@
             "assetType": "native",
             "fileVersion": "0.0.0.0"
           },
+          "runtimes/win-arm/native/onnxruntime.dll": {
+            "rid": "win-arm",
+            "assetType": "native",
+            "fileVersion": "1.16.23.1119"
+          },
+          "runtimes/win-arm/native/onnxruntime.lib": {
+            "rid": "win-arm",
+            "assetType": "native",
+            "fileVersion": "0.0.0.0"
+          },
+          "runtimes/win-arm/native/onnxruntime_providers_shared.dll": {
+            "rid": "win-arm",
+            "assetType": "native",
+            "fileVersion": "1.16.23.1119"
+          },
+          "runtimes/win-arm/native/onnxruntime_providers_shared.lib": {
+            "rid": "win-arm",
+            "assetType": "native",
+            "fileVersion": "0.0.0.0"
+          },
           "runtimes/win-arm64/native/onnxruntime.dll": {
             "rid": "win-arm64",
             "assetType": "native",
-            "fileVersion": "1.22.25.508"
+            "fileVersion": "1.16.23.1119"
           },
           "runtimes/win-arm64/native/onnxruntime.lib": {
             "rid": "win-arm64",
@@ -72,7 +172,7 @@
           "runtimes/win-arm64/native/onnxruntime_providers_shared.dll": {
             "rid": "win-arm64",
             "assetType": "native",
-            "fileVersion": "1.22.25.508"
+            "fileVersion": "1.16.23.1119"
           },
           "runtimes/win-arm64/native/onnxruntime_providers_shared.lib": {
             "rid": "win-arm64",
@@ -82,7 +182,7 @@
           "runtimes/win-x64/native/onnxruntime.dll": {
             "rid": "win-x64",
             "assetType": "native",
-            "fileVersion": "1.22.25.508"
+            "fileVersion": "1.16.23.1119"
           },
           "runtimes/win-x64/native/onnxruntime.lib": {
             "rid": "win-x64",
@@ -92,7 +192,7 @@
           "runtimes/win-x64/native/onnxruntime_providers_shared.dll": {
             "rid": "win-x64",
             "assetType": "native",
-            "fileVersion": "1.22.25.508"
+            "fileVersion": "1.16.23.1119"
           },
           "runtimes/win-x64/native/onnxruntime_providers_shared.lib": {
             "rid": "win-x64",
@@ -102,7 +202,7 @@
           "runtimes/win-x86/native/onnxruntime.dll": {
             "rid": "win-x86",
             "assetType": "native",
-            "fileVersion": "1.22.25.508"
+            "fileVersion": "1.16.23.1119"
           },
           "runtimes/win-x86/native/onnxruntime.lib": {
             "rid": "win-x86",
@@ -112,7 +212,7 @@
           "runtimes/win-x86/native/onnxruntime_providers_shared.dll": {
             "rid": "win-x86",
             "assetType": "native",
-            "fileVersion": "1.22.25.508"
+            "fileVersion": "1.16.23.1119"
           },
           "runtimes/win-x86/native/onnxruntime_providers_shared.lib": {
             "rid": "win-x86",
@@ -121,25 +221,22 @@
           }
         }
       },
-      "Microsoft.ML.OnnxRuntime.Managed/1.22.0": {
+      "Microsoft.ML.OnnxRuntime.Managed/1.16.3": {
         "dependencies": {
-          "System.Memory": "4.5.5",
-          "System.Numerics.Tensors": "9.0.0"
+          "System.Memory": "4.5.5"
         },
         "runtime": {
-          "lib/net8.0/Microsoft.ML.OnnxRuntime.dll": {
-            "assemblyVersion": "1.22.0.0",
-            "fileVersion": "1.22.0.0"
+          "lib/net6.0/Microsoft.ML.OnnxRuntime.dll": {
+            "assemblyVersion": "0.0.0.0",
+            "fileVersion": "0.0.0.0"
           }
         }
       },
       "System.Memory/4.5.5": {},
-      "System.Numerics.Tensors/9.0.0": {
-        "runtime": {
-          "lib/net8.0/System.Numerics.Tensors.dll": {
-            "assemblyVersion": "9.0.0.0",
-            "fileVersion": "9.0.24.52809"
-          }
+      "System.Text.Encodings.Web/8.0.0": {},
+      "System.Text.Json/8.0.2": {
+        "dependencies": {
+          "System.Text.Encodings.Web": "8.0.0"
         }
       }
     }
@@ -150,19 +247,26 @@
       "serviceable": false,
       "sha512": ""
     },
-    "Microsoft.ML.OnnxRuntime/1.22.0": {
+    "CsvHelper/30.0.1": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-IC5jOaU6YZ7qcLl7JiR2yL6+NznthdCPwW8XgN2XkbvDERRFqMLIVtwfzu2H110fhms59VIyyMOxHXHl2iVzCg==",
-      "path": "microsoft.ml.onnxruntime/1.22.0",
-      "hashPath": "microsoft.ml.onnxruntime.1.22.0.nupkg.sha512"
+      "sha512": "sha512-rcZtgbWR+As4G3Vpgx0AMNmShGuQLFjkHAPIIflzrfkJCx8/AOd4m96ZRmiU1Wi39qS5UVjV0P8qdgqOo5Cwyg==",
+      "path": "csvhelper/30.0.1",
+      "hashPath": "csvhelper.30.0.1.nupkg.sha512"
     },
-    "Microsoft.ML.OnnxRuntime.Managed/1.22.0": {
+    "Microsoft.ML.OnnxRuntime/1.16.3": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-zlG3eY5mJnx1BhYAxRwpuHCGHzl3B+cY5/se0RmlVBw6Yh6QTGjPAXdjhlBIcw6BPFhgMn9lxWPE/U3Fvis+BQ==",
-      "path": "microsoft.ml.onnxruntime.managed/1.22.0",
-      "hashPath": "microsoft.ml.onnxruntime.managed.1.22.0.nupkg.sha512"
+      "sha512": "sha512-N/FLnuU8TFxn4DGl7t5Nb2fTo62FtXPbCOPXQHWNWZ/AiUghmV7J6tuGkP89NOOd5Fe4FVmbmXyc8EbiNj2ZCA==",
+      "path": "microsoft.ml.onnxruntime/1.16.3",
+      "hashPath": "microsoft.ml.onnxruntime.1.16.3.nupkg.sha512"
+    },
+    "Microsoft.ML.OnnxRuntime.Managed/1.16.3": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-w4uDtHgBvOQyJT51SndFZK2UiW7o4ecZOYFtvClJL0AqWXVtFGQBTA77Peb17AS1xMkjYoHV4uVyJRqEZYxZ3w==",
+      "path": "microsoft.ml.onnxruntime.managed/1.16.3",
+      "hashPath": "microsoft.ml.onnxruntime.managed.1.16.3.nupkg.sha512"
     },
     "System.Memory/4.5.5": {
       "type": "package",
@@ -171,12 +275,19 @@
       "path": "system.memory/4.5.5",
       "hashPath": "system.memory.4.5.5.nupkg.sha512"
     },
-    "System.Numerics.Tensors/9.0.0": {
+    "System.Text.Encodings.Web/8.0.0": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-hyJB4UlpAi19Xr9AXzu2NuagKC4lPfHObNMEAA0HmqFz2rX7wKgzeYzO/jM/eBHDhnUGFFEjk5cOoJaxqg5J4A==",
-      "path": "system.numerics.tensors/9.0.0",
-      "hashPath": "system.numerics.tensors.9.0.0.nupkg.sha512"
+      "sha512": "sha512-yev/k9GHAEGx2Rg3/tU6MQh4HGBXJs70y7j1LaM1i/ER9po+6nnQ6RRqTJn1E7Xu0fbIFK80Nh5EoODxrbxwBQ==",
+      "path": "system.text.encodings.web/8.0.0",
+      "hashPath": "system.text.encodings.web.8.0.0.nupkg.sha512"
+    },
+    "System.Text.Json/8.0.2": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-29KA2StjWDYp32FvREifawRtNpTziLE1xyuDV9pVQ+MsaE9bIcIieP0io/eZZeLMxR+Nx9zI55RtUtpVpEIdeg==",
+      "path": "system.text.json/8.0.2",
+      "hashPath": "system.text.json.8.0.2.nupkg.sha512"
     }
   }
 }

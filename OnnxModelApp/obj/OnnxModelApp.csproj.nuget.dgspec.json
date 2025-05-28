@@ -43,9 +43,17 @@
         "net8.0": {
           "targetAlias": "net8.0",
           "dependencies": {
+            "CsvHelper": {
+              "target": "Package",
+              "version": "[30.0.1, )"
+            },
             "Microsoft.ML.OnnxRuntime": {
               "target": "Package",
-              "version": "[1.22.0, )"
+              "version": "[1.16.3, )"
+            },
+            "System.Text.Json": {
+              "target": "Package",
+              "version": "[8.0.2, )"
             }
           },
           "imports": [
