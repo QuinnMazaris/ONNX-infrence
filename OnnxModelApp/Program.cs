@@ -12,6 +12,8 @@ namespace OnnxModelApp
         private readonly ModelConfig _config;
         private readonly DataPreprocessor _preprocessor;
         private readonly string _csvPath;
+        
+        public string CsvPath => _csvPath;
 
         public WeldPredictor()
         {
@@ -136,33 +138,229 @@ namespace OnnxModelApp
                 }
                 else
                 {
-                    return $"Error: output_label is not a tensor, type: {labelResult.ValueType}";
+                    return $"Error: label is not a tensor, type: {labelResult.ValueType}";
                 }
 
                 // Get probability output for confidence
                 var probResult = results.FirstOrDefault(r => r.Name == "output_probability");
                 float confidence = 0.5f; // Default confidence
                 
-                if (probResult != null && probResult.ValueType == OnnxValueType.ONNX_TYPE_SEQUENCE)
+                if (probResult != null)
                 {
-                    try
+                    // Try to extract directly from the probability result if it's a map
+                    if (probResult.ValueType == OnnxValueType.ONNX_TYPE_MAP)
                     {
-                        // Try to extract probability - this might be a sequence of probabilities
-                        var probSequence = probResult.AsEnumerable<IEnumerable<float>>();
-                        if (probSequence != null)
+                        try
                         {
-                            var probArray = probSequence.First().ToArray();
+                            var mapValue = probResult.AsEnumerable<IDictionary<long, float>>();
+                            if (mapValue != null)
+                            {
+                                var probDict = mapValue.First();
+                                if (probDict.ContainsKey(1))
+                                {
+                                    confidence = probDict[1];
+                                }
+                                else if (probDict.ContainsKey(0))
+                                {
+                                    confidence = 1.0f - probDict[0];
+                                }
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            Console.WriteLine($"Could not extract directly from map: {ex.Message}");
+                        }
+                    }
+                    else if (probResult.ValueType == OnnxValueType.ONNX_TYPE_TENSOR)
+                    {
+                        try
+                        {
+                            var tensor = probResult.AsTensor<float>();
+                            Console.WriteLine($"Tensor length: {tensor.Length}");
+                            var probArray = tensor.ToArray<float>();
+                            Console.WriteLine($"Probabilities: [{string.Join(", ", probArray)}]");
                             if (probArray.Length > 1)
                             {
                                 confidence = probArray[1]; // Probability of class 1 (Bad)
                             }
+                            else if (probArray.Length == 1)
+                            {
+                                confidence = probArray[0]; // Single probability value
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            Console.WriteLine($"Could not extract probability from tensor: {ex.Message}");
                         }
                     }
-                    catch (Exception ex)
+                    else if (probResult.ValueType == OnnxValueType.ONNX_TYPE_SEQUENCE)
                     {
-                        Console.WriteLine($"Could not extract probability: {ex.Message}");
+                        try
+                        {
+                                                    // Try to extract from sequence
+                        bool extracted = false;
+                        try
+                        {
+                            var genericSequence = probResult.AsEnumerable<object>();
+                            if (genericSequence != null)
+                            {
+                                var firstItem = genericSequence.FirstOrDefault();
+                                if (firstItem != null)
+                                {
+                                    // If it's a DisposableNamedOnnxValue, extract its value
+                                    if (firstItem is Microsoft.ML.OnnxRuntime.DisposableNamedOnnxValue namedValue)
+                                    {
+                                        if (namedValue.ValueType == OnnxValueType.ONNX_TYPE_MAP)
+                                        {
+                                                
+                                                // Extract probability from map using reflection
+                                                try
+                                                {
+                                                    var valueProperty = namedValue.GetType().GetProperty("Value");
+                                                    if (valueProperty != null)
+                                                    {
+                                                        var actualValue = valueProperty.GetValue(namedValue);
+                                                        
+                                                        // If it's enumerable, try to iterate through it
+                                                        if (actualValue is System.Collections.IEnumerable enumerable)
+                                                        {
+                                                            foreach (var item in enumerable)
+                                                            {
+                                                                // If it's a KeyValuePair<long, float>
+                                                                if (item is System.Collections.Generic.KeyValuePair<long, float> kvpLongFloat)
+                                                                {
+                                                                    if (kvpLongFloat.Key == 1)
+                                                                    {
+                                                                        confidence = kvpLongFloat.Value;
+                                                                        extracted = true;
+                                                                    }
+                                                                    else if (kvpLongFloat.Key == 0)
+                                                                    {
+                                                                        confidence = 1.0f - kvpLongFloat.Value;
+                                                                        extracted = true;
+                                                                    }
+                                                                }
+                                                                
+                                                                if (extracted) break; // Exit loop if we found what we need
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                                catch (Exception ex)
+                                                {
+                                                    Console.WriteLine($"Could not extract probability from map: {ex.Message}");
+                                                }
+                                                
+                                                // If reflection didn't work, try the standard approaches
+                                                if (!extracted)
+                                                {
+                                                    try
+                                                    {
+                                                        Console.WriteLine("Trying standard map extraction...");
+                                                        var mapValue = namedValue.AsEnumerable<IDictionary<long, float>>();
+                                                        if (mapValue != null)
+                                                        {
+                                                            var probDict = mapValue.First();
+                                                            Console.WriteLine($"Probability map: {string.Join(", ", probDict.Select(kv => $"{kv.Key}:{kv.Value}"))}");
+                                                            if (probDict.ContainsKey(1))
+                                                            {
+                                                                confidence = probDict[1];
+                                                                Console.WriteLine($"Found class 1 probability: {confidence}");
+                                                                extracted = true;
+                                                            }
+                                                            else if (probDict.ContainsKey(0))
+                                                            {
+                                                                confidence = 1.0f - probDict[0];
+                                                                Console.WriteLine($"Found class 0 probability, calculated confidence: {confidence}");
+                                                                extracted = true;
+                                                            }
+                                                        }
+                                                    }
+                                                    catch (Exception ex)
+                                                    {
+                                                        Console.WriteLine($"Standard map extraction failed: {ex.Message}");
+                                                    }
+                                                }
+                                            }
+                                            else if (namedValue.ValueType == OnnxValueType.ONNX_TYPE_TENSOR)
+                                            {
+                                                Console.WriteLine("Value is a tensor");
+                                                try
+                                                {
+                                                    var tensor = namedValue.AsTensor<float>();
+                                                    var probArray = tensor.ToArray<float>();
+                                                    Console.WriteLine($"Probabilities from tensor: [{string.Join(", ", probArray)}]");
+                                                    if (probArray.Length > 1)
+                                                    {
+                                                        confidence = probArray[1]; // Probability of class 1 (Bad)
+                                                        Console.WriteLine($"Using class 1 probability: {confidence}");
+                                                        extracted = true;
+                                                    }
+                                                    else if (probArray.Length == 1)
+                                                    {
+                                                        confidence = probArray[0]; // Single probability value
+                                                        Console.WriteLine($"Using single probability: {confidence}");
+                                                        extracted = true;
+                                                    }
+                                                }
+                                                catch (Exception ex)
+                                                {
+                                                    Console.WriteLine($"Could not extract from tensor: {ex.Message}");
+                                                }
+                                            }
+                                        }
+                                        // If it's a dictionary, try to extract from it
+                                        else if (firstItem is IDictionary<object, object> dict)
+                                        {
+                                            Console.WriteLine("First item is a dictionary");
+                                            foreach (var kvp in dict)
+                                            {
+                                                Console.WriteLine($"  Key: {kvp.Key} (type: {kvp.Key?.GetType()}), Value: {kvp.Value} (type: {kvp.Value?.GetType()})");
+                                                if (kvp.Key?.ToString() == "1" && kvp.Value is float f1)
+                                                {
+                                                    confidence = f1;
+                                                    Console.WriteLine($"Found class 1 probability: {confidence}");
+                                                    extracted = true;
+                                                }
+                                                else if (kvp.Key?.ToString() == "0" && kvp.Value is float f0)
+                                                {
+                                                    confidence = 1.0f - f0;
+                                                    Console.WriteLine($"Found class 0 probability, calculated confidence: {confidence}");
+                                                    extracted = true;
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                Console.WriteLine($"Could not extract from sequence: {ex.Message}");
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            Console.WriteLine($"Could not extract probability from sequence: {ex.Message}");
+                        }
                     }
                 }
+                else
+                {
+                    Console.WriteLine("No probability output found - using default confidence");
+                }
+
+                // Apply prediction threshold after confidence is calculated
+                if (confidence >= _config.ModelSettings.PredictionThreshold)
+                {
+                    prediction = 1; // Classify as Bad
+                }
+                else
+                {
+                    prediction = 0; // Classify as Good
+                }
+                
+                // Debug: Print final prediction and confidence
+                Console.WriteLine($"Row {rowNumber}: Final Prediction: {prediction}, Confidence: {confidence:F4}, Threshold: {_config.ModelSettings.PredictionThreshold}");
 
                 // Convert output to readable format
                 string predictionText = prediction == 1 ? "Bad" : "Good";
@@ -192,22 +390,41 @@ namespace OnnxModelApp
                 if (args.Length > 0 && int.TryParse(args[0], out int rowNumber))
                 {
                     // Predict specific row
+                    Console.WriteLine($"\n=== PREDICTING SINGLE ROW {rowNumber} ===");
                     var result = predictor.PredictRow(rowNumber);
                     Console.WriteLine(result);
                 }
                 else
                 {
-                    // Test a comprehensive set of predictions
-                    Console.WriteLine("\n=== EXACT FEATURE PREDICTIONS ===");
+                    // Loop through all rows and predict each one
+                    Console.WriteLine("\n=== PREDICTING ALL ROWS ===");
                     
-                    // Test some specific rows including known Bad samples
-                    int[] testRows = { 0, 1, 2, 480, 1000, 2000, 2411 }; // Include last row
+                    // Read the preprocessed CSV to get total row count
+                    var csvPath = predictor.CsvPath;
+                    var lines = File.ReadAllLines(csvPath);
+                    int totalRows = lines.Length - 1; // Subtract 1 for header
                     
-                    foreach (int row in testRows)
+                    Console.WriteLine($"Total rows to predict: {totalRows}");
+                    Console.WriteLine("Starting predictions...\n");
+                    
+                    // Output header for CSV format
+                    Console.WriteLine("PREDICTIONS_START");
+                    
+                    // Predict each row
+                    for (int row = 0; row < totalRows; row++)
                     {
                         var result = predictor.PredictRow(row);
-                        Console.WriteLine($"Row {row}: {result}");
+                        Console.WriteLine(result);
+                        
+                        // Add a small delay every 100 rows to prevent overwhelming output
+                        if ((row + 1) % 100 == 0)
+                        {
+                            Console.WriteLine($"--- Completed {row + 1}/{totalRows} predictions ---");
+                        }
                     }
+                    
+                    Console.WriteLine("PREDICTIONS_END");
+                    Console.WriteLine($"\n=== COMPLETED ALL {totalRows} PREDICTIONS ===");
                 }
             }
             catch (Exception ex)

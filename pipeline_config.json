@@ -1,0 +1,25 @@
+{
+    "paths": {
+        "project_root": ".",
+        "output_dir": "output_files",
+        "pickle_file": "exact_training_features.pkl",
+        "json_file": "exact_training_features.json",
+        "raw_csv": "ensemble.csv",
+        "preprocessed_csv": "exact_preprocessed_data.csv",
+        "ground_truth_csv": "exact_ground_truth.csv",
+        "csharp_project": "OnnxModelApp",
+        "csharp_project_file": "OnnxModelApp/OnnxModelApp.csproj",
+        "appsettings": "OnnxModelApp/appsettings.json",
+        "onnx_model": "RandomForest_production.onnx",
+        "ensemble_csv": "ensemble.csv"
+    },
+    "model_settings": {
+        "prediction_threshold": 0.5,
+        "default_model": "RandomForest_production.onnx"
+    },
+    "preprocessing": {
+        "run_before_inference": true,
+        "save_intermediate_files": true,
+        "skip_if_exists": true
+    }
+} 
