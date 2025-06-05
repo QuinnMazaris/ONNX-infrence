@@ -1,140 +1,65 @@
-# ONNX Model Inference Project
+# ONNX Inference Application
 
-A C# and Python pipeline for running inference on a Random Forest ONNX model for weld quality prediction, with exact feature matching and robust automation.
+This project demonstrates how to perform ONNX model inference using C# and the ONNX Runtime library.
 
 ## Project Structure
 
-```
-ONNX infrence/
-├── OnnxModelApp/                    # Main C# application
-│   ├── Program.cs                   # Main application logic (entry point)
-│   ├── DataPreprocessor.cs          # Handles feature extraction and preprocessing
-│   ├── ModelConfig.cs               # Loads config and resolves file paths
-│   ├── appsettings.json             # Configuration for file paths and thresholds
-│   ├── Model/                       # Model helper classes
-│   │   ├── OnnxModel.cs             # ONNX model wrapper (low-level)
-│   │   ├── TensorHelper.cs          # Tensor utilities
-│   │   └── RandomForest_production.onnx  # ONNX model file (copy)
-│   ├── exact_preprocessed_data.csv  # Preprocessed data (generated)
-│   └── OnnxModelApp.csproj          # C# project file
-├── load_exact_features.py           # Python script for manual data preprocessing
-├── Run_Full_Pipeline.py             # (Optional) End-to-end pipeline script
-├── exact_training_features.pkl      # Feature mapping from training (pickle)
-├── exact_training_features.json     # Feature mapping (JSON, for C#)
-├── exact_preprocessed_data.csv      # Preprocessed data (generated)
-├── training_data.csv                # Raw data
-├── RandomForest_production.onnx     # ONNX model file
-└── README.md                        # This file
-```
+- `OnnxModelApp/`: This directory contains the core C# library for ONNX model prediction.
+- `TestApp/`: This directory contains a console application that demonstrates how to use the `OnnxModelApp` library.
+- `Model/`: (Expected) This directory should contain your ONNX model file (e.g., `RandomForest_production.onnx`).
 
-## Prerequisites
+## Building and Running the Application
 
-- .NET 8.0 or later
-- Python 3.7+ (for optional/manual preprocessing)
-- Python packages: `pandas`, `numpy`, `pickle`
+Follow these steps to build and run the application:
 
-## Quick Start
+1.  **Navigate to the project root:**
 
-### 1. Run the C# Application
+    Open your terminal or command prompt and navigate to the root directory of this project (where `OnnxModelApp` and `TestApp` folders are located).
 
-Preprocessing is automatic if needed. Simply run:
+    ```bash
+    cd "C:\Users\QuinnMazaris\Desktop\ONNX infrence"
+    ```
 
-```bash
-cd OnnxModelApp
-# For batch predictions (default test rows):
-dotnet run
-# For a specific row (e.g., row 480):
-dotnet run 480
-```
+2.  **Build the `OnnxModelApp` library:**
 
-If `exact_preprocessed_data.csv` does not exist, it will be generated using the feature mapping and raw data.
+    This command compiles the core ONNX inference library.
 
-### 2. (Optional) Manual Preprocessing
+    ```bash
+    dotnet build OnnxModelApp
+    ```
 
-If you want to manually preprocess or debug features:
+3.  **Build the `TestApp` console application:**
 
-```bash
-python load_exact_features.py
-```
-This will generate:
-- `exact_preprocessed_data.csv` (features in exact order)
-- `exact_ground_truth.csv` (labels, if present)
+    This command compiles the example application that uses the `OnnxModelApp` library.
 
-## Usage Examples
+    ```bash
+    dotnet build TestApp
+    ```
 
-**Batch prediction:**
-```bash
-cd OnnxModelApp
-dotnet run
-```
-Output:
-```
-Using model: .../RandomForest_production.onnx
-Using preprocessed CSV: .../exact_preprocessed_data.csv
+4.  **Run the `TestApp`:**
 
-=== Model Information ===
-Input metadata:
-  float_input: System.Single, Shape: [-1, 23]
-Output metadata:
-  output_label: System.Int64, Shape: [-1]
+    This command executes the `TestApp`, which will load the ONNX model and perform a prediction using the pre-defined input vector.
 
-=== EXACT FEATURE PREDICTIONS ===
-Row 0: {"row": 0, "prediction": "Good", "confidence": 0.98, "label": 0}
-Row 1: {"row": 1, "prediction": "Good", "confidence": 0.99, "label": 0}
-Row 480: {"row": 480, "prediction": "Bad", "confidence": 0.87, "label": 1}
-...
-```
+    ```bash
+    dotnet run --project TestApp
+    ```
 
-**Single row prediction:**
-```bash
-dotnet run 100
-```
-Output:
-```
-{"row": 100, "prediction": "Good", "confidence": 0.97, "label": 0}
-```
+    You should see output similar to this:
 
-## How It Works
+    ```
+    Using model: .../RandomForest_production.onnx
 
-### C# Pipeline
-- **Program.cs**: Entry point. Loads config, checks/generates preprocessed data, runs predictions (batch or single row).
-- **WeldPredictor**: Main class. Handles ONNX session, data loading, and prediction logic.
-- **DataPreprocessor**: Loads feature mapping, extracts features in exact order, handles one-hot encoding, and writes preprocessed CSV.
-- **ModelConfig**: Loads `appsettings.json`, resolves file paths robustly (searches multiple locations).
-- **Model/OnnxModel.cs & TensorHelper.cs**: Helpers for ONNX model and tensor creation.
+    === Model Information ===
+    Input metadata:
+    ...
+    Number of outputs: 2
+    Output name: output_label, Type: ONNX_TYPE_TENSOR
+    Output name: output_probability, Type: ONNX_TYPE_SEQUENCE
+    Label result name: output_label
+    Prediction Result: Good
+    Confidence: 0.3746
+    ```
 
-### Python Preprocessing
-- **load_exact_features.py**: Loads feature mapping from pickle, extracts features from raw CSV in exact order, saves preprocessed data and ground truth. Used for debugging or manual runs.
-- **exact_training_features.json**: JSON version of feature mapping, used by C# for feature order and preprocessing consistency.
+## Input Data
 
-### Configuration
-- **appsettings.json**: Controls paths for model, data, preprocessed data, and feature mapping. Also sets prediction threshold. The C# app will search for files in several likely locations.
-
-## Output Format
-- Predictions are printed in JSON format:
-  - `row`: Row number
-  - `prediction`: "Good" or "Bad"
-  - `confidence`: Probability/confidence for the predicted class (if available)
-  - `label`: Raw output (0 = Good, 1 = Bad)
-
-## Troubleshooting
-
-- **"Could not find exact_preprocessed_data.csv"**
-  - The C# app will attempt to generate it automatically. If it fails, run `python load_exact_features.py` manually.
-- **"Could not find RandomForest_production.onnx"**
-  - Ensure the ONNX model file is in the project root or referenced locations.
-- **Feature count mismatch**
-  - The feature mapping ensures exact order. If you get this error, re-run preprocessing.
-- **Other file not found errors**
-  - Check `appsettings.json` and file locations. The app searches multiple directories for each file.
-
-## Technical Details
-- Uses `Microsoft.ML.OnnxRuntime` for ONNX inference
-- Ensures exact feature order and preprocessing as in training
-- Robust file path detection for cross-platform use
-- JSON output for easy integration
-- Handles one-hot encoding for categorical features (e.g., Weld type)
-
----
-
-For questions or issues, please check the code comments or open an issue. 
+The `TestApp` currently uses a hardcoded `float[] rawInputVector` in `TestApp/Program.cs` as input for the ONNX model. If your model requires specific ordering or preprocessing (like one-hot encoding), you are now responsible for preparing this `float[]` array before passing it to the `WeldPredictor.Predict()` method. 
