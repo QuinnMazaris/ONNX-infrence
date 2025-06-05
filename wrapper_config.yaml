@@ -1,0 +1,4 @@
+csv_path: data.csv
+model_path: model.onnx
+feature_mapping_path: exact_training_features.json
+ground_truth_column: GT_Label

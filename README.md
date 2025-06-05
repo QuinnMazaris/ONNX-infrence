@@ -135,6 +135,21 @@ Output:
 - JSON output for easy integration
 - Handles one-hot encoding for categorical features (e.g., Weld type)
 
+## Simple Wrapper Usage
+
+The `wrapper.py` script provides a lightweight way to test a new ONNX model against a CSV file. It calls the `SimpleEvaluator` C# app for each row and then prints a confusion matrix.
+
+1. Edit `wrapper_config.yaml` with the paths to your model, feature mapping and CSV file.
+2. Run the wrapper:
+
+```bash
+python wrapper.py wrapper_config.yaml
+```
+
+The script builds the C# project if needed, runs predictions and writes a `predictions.csv` with an extra `Prediction` column.
+
+The C# code only processes a single row at a time so it can later be extracted for field use.
+
 ---
 
 For questions or issues, please check the code comments or open an issue. 
