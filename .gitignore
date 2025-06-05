@@ -1,6 +1,8 @@
 # Ignore build outputs and binaries
 OnnxModelApp/bin/
 OnnxModelApp/obj/
+SimpleEvaluator/bin/
+SimpleEvaluator/obj/
 
 # Ignore large ONNX runtime binaries
 OnnxModelApp/bin/Debug/net6.0/runtimes/ios/native/onnxruntime.xcframework/ios-arm64/onnxruntime.framework/onnxruntime

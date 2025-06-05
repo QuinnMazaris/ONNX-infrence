@@ -1,0 +1,4 @@
+{
+  "modelPath": "model.onnx",
+  "featureMappingPath": "exact_training_features.json"
+}
