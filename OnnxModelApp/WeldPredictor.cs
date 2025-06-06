@@ -56,12 +56,6 @@ namespace OnnxModelApp
 
                 // Run inference
                 using var results = _session.Run(inputs);
-                
-                // Debug: Print all outputs (Removed for cleaner output)
-                // foreach (var result in results)
-                // {
-                //     Console.WriteLine($"Output name: {result.Name}, Type: {result.ValueType}");
-                // }
 
                 // Get the label output (should be the prediction)
                 var labelResult = results.FirstOrDefault(r => r.Name == "output_label");
@@ -70,7 +64,6 @@ namespace OnnxModelApp
                     throw new InvalidOperationException("Could not find output_label in model results");
                 }
                 
-                // Console.WriteLine($"Label result name: {labelResult.Name}"); // Removed for cleaner output
                 
                 long prediction;
                 if (labelResult.ValueType == OnnxValueType.ONNX_TYPE_TENSOR)
@@ -118,9 +111,7 @@ namespace OnnxModelApp
                         try
                         {
                             var tensor = probResult.AsTensor<float>();
-                            // Console.WriteLine($"Tensor length: {tensor.Length}"); // Removed for cleaner output
                             var probArray = tensor.ToArray<float>();
-                            // Console.WriteLine($"Probabilities: [{string.Join(", ", probArray)}]"); // Removed for cleaner output
                             if (probArray.Length > 1)
                             {
                                 confidence = probArray[1]; // Probability of class 1 (Bad)
