@@ -30,36 +30,17 @@ namespace OnnxModelApp
             }
 
             Console.WriteLine($"Using model: {fullOnnxModelPath}");
+            Console.WriteLine($"Prediction Threshold: {_predictionThreshold}"); // Print the threshold
 
             // Create ONNX Runtime session
             _session = new InferenceSession(fullOnnxModelPath);
 
-            // Print model information
-            PrintModelInfo();
+            // Print model information (Removed for cleaner output)
         }
 
         private void PrintModelInfo()
         {
-            Console.WriteLine("\n=== Model Information ===");
-            
-            Console.WriteLine("Input metadata:");
-            foreach (var input in _session.InputMetadata)
-            {
-                Console.WriteLine($"  {input.Key}: {input.Value.ElementType}, Shape: [{string.Join(", ", input.Value.Dimensions)}]");
-            }
-
-            Console.WriteLine("Output metadata:");
-            foreach (var output in _session.OutputMetadata)
-            {
-                try
-                {
-                    Console.WriteLine($"  {output.Key}: {output.Value.ElementType}, Shape: [{string.Join(", ", output.Value.Dimensions)}]");
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"  {output.Key}: (Could not read metadata - {ex.Message})");
-                }
-            }
+            // Removed for cleaner output
         }
 
         public PredictionResult Predict(float[] features)
@@ -76,12 +57,11 @@ namespace OnnxModelApp
                 // Run inference
                 using var results = _session.Run(inputs);
                 
-                // Debug: Print all outputs
-                Console.WriteLine($"Number of outputs: {results.Count()}");
-                foreach (var result in results)
-                {
-                    Console.WriteLine($"Output name: {result.Name}, Type: {result.ValueType}");
-                }
+                // Debug: Print all outputs (Removed for cleaner output)
+                // foreach (var result in results)
+                // {
+                //     Console.WriteLine($"Output name: {result.Name}, Type: {result.ValueType}");
+                // }
 
                 // Get the label output (should be the prediction)
                 var labelResult = results.FirstOrDefault(r => r.Name == "output_label");
@@ -90,7 +70,7 @@ namespace OnnxModelApp
                     throw new InvalidOperationException("Could not find output_label in model results");
                 }
                 
-                Console.WriteLine($"Label result name: {labelResult.Name}");
+                // Console.WriteLine($"Label result name: {labelResult.Name}"); // Removed for cleaner output
                 
                 long prediction;
                 if (labelResult.ValueType == OnnxValueType.ONNX_TYPE_TENSOR)
@@ -138,9 +118,9 @@ namespace OnnxModelApp
                         try
                         {
                             var tensor = probResult.AsTensor<float>();
-                            Console.WriteLine($"Tensor length: {tensor.Length}");
+                            // Console.WriteLine($"Tensor length: {tensor.Length}"); // Removed for cleaner output
                             var probArray = tensor.ToArray<float>();
-                            Console.WriteLine($"Probabilities: [{string.Join(", ", probArray)}]");
+                            // Console.WriteLine($"Probabilities: [{string.Join(", ", probArray)}]"); // Removed for cleaner output
                             if (probArray.Length > 1)
                             {
                                 confidence = probArray[1]; // Probability of class 1 (Bad)
