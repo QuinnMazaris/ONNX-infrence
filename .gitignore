@@ -11,7 +11,7 @@ OnnxModelApp/bin/Debug/net8.0/runtimes/ios/native/onnxruntime.xcframework/ios-ar
 OnnxModelApp/bin/Debug/net8.0/runtimes/ios/native/onnxruntime.xcframework/ios-arm64_x86_64-simulator/onnxruntime.framework/onnxruntime
 
 # Ignore data and model files (if not needed in repo)
-*.onnx
+
 *.pkl
 *.csv
 

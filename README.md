@@ -1,65 +1,41 @@
 # ONNX Inference Application
 
-This project demonstrates how to perform ONNX model inference using C# and the ONNX Runtime library.
+This repository contains two .NET 8.0 projects:
+- `OnnxModelApp`: A class library containing the ONNX model inference logic.
+- `TestApp`: A console application that uses `OnnxModelApp` to perform predictions.
 
-## Project Structure
+## Prerequisites
 
-- `OnnxModelApp/`: This directory contains the core C# library for ONNX model prediction.
-- `TestApp/`: This directory contains a console application that demonstrates how to use the `OnnxModelApp` library.
-- `Model/`: (Expected) This directory should contain your ONNX model file (e.g., `RandomForest_production.onnx`).
+- [.NET 8.0 SDK](https://dotnet.microsoft.com/download/dotnet/8.0) installed.
+- The ONNX model file `RandomForest_production.onnx`
 
-## Building and Running the Application
+## Build and Run Instructions
 
-Follow these steps to build and run the application:
+Navigate to the root directory of the application (where `ONNX infrence` is located) in your terminal.
 
-1.  **Navigate to the project root:**
+### Build
 
-    Open your terminal or command prompt and navigate to the root directory of this project (where `OnnxModelApp` and `TestApp` folders are located).
+To build the `TestApp` project and its dependencies, run the following command:
 
-    ```bash
-    cd "C:\Users\QuinnMazaris\Desktop\ONNX infrence"
-    ```
+```bash
+dotnet build TestApp
+```
 
-2.  **Build the `OnnxModelApp` library:**
+This will compile both `OnnxModelApp` and `TestApp`.
 
-    This command compiles the core ONNX inference library.
+### Run
 
-    ```bash
-    dotnet build OnnxModelApp
-    ```
+After successfully building and ensuring `RandomForest_production.onnx` is in the correct output directory, you can run the `TestApp` using:
 
-3.  **Build the `TestApp` console application:**
+```bash
+dotnet run --project TestApp
+```
 
-    This command compiles the example application that uses the `OnnxModelApp` library.
+Alternatively, you can navigate to the output directory (e.g., `TestApp/bin/Debug/net8.0/`) and run the executable directly:
 
-    ```bash
-    dotnet build TestApp
-    ```
+```bash
+cd TestApp/bin/Debug/net8.0/
+./TestApp
+```
 
-4.  **Run the `TestApp`:**
-
-    This command executes the `TestApp`, which will load the ONNX model and perform a prediction using the pre-defined input vector.
-
-    ```bash
-    dotnet run --project TestApp
-    ```
-
-    You should see output similar to this:
-
-    ```
-    Using model: .../RandomForest_production.onnx
-
-    === Model Information ===
-    Input metadata:
-    ...
-    Number of outputs: 2
-    Output name: output_label, Type: ONNX_TYPE_TENSOR
-    Output name: output_probability, Type: ONNX_TYPE_SEQUENCE
-    Label result name: output_label
-    Prediction Result: Good
-    Confidence: 0.3746
-    ```
-
-## Input Data
-
-The `TestApp` currently uses a hardcoded `float[] rawInputVector` in `TestApp/Program.cs` as input for the ONNX model. If your model requires specific ordering or preprocessing (like one-hot encoding), you are now responsible for preparing this `float[]` array before passing it to the `WeldPredictor.Predict()` method. 
+Replace `Debug` with `Release` if you built in Release configuration.
